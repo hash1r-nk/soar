@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SOAR Command Center — Security Orchestration, Automation & Response Dashboard with real-time Splunk alert ingestion">
+    <title>SOAR Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo">🛡️</div>
+            <div>
+                <div class="header-title">SOAR Command Center</div>
+                <div class="header-subtitle">Security Orchestration, Automation & Response</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Stats Bar -->
+        <section class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-label">Total Alerts</div>
+                <div class="stat-value" id="statAlerts">0</div>
+                <div class="stat-sub" id="statAlertsSub">No alerts received</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Open Cases</div>
+                <div class="stat-value" id="statOpenCases">0</div>
+                <div class="stat-sub" id="statOpenCasesSub">All clear</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">High / Critical</div>
+                <div class="stat-value" id="statHighSev">0</div>
+                <div class="stat-sub" id="statHighSevSub">No high severity</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Actions Taken</div>
+                <div class="stat-value" id="statActions">0</div>
+                <div class="stat-sub" id="statActionsSub">No actions yet</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Correlated Groups</div>
+                <div class="stat-value" id="statCorrelation">0</div>
+                <div class="stat-sub" id="statCorrelationSub">No correlations</div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="chart-section">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">📊</span> Severity Distribution</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">📈</span> Case Status Overview</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="caseChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Correlation Engine Section -->
+        <section class="correlation-section">
+            <div class="panel correlation-panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">🔗</span> Correlation Engine</div>
+                    <div class="correlation-tabs">
+                        <button class="corr-tab active" id="tabGroups" onclick="switchCorrTab('groups')">IP Groups</button>
+                        <button class="corr-tab" id="tabPatterns" onclick="switchCorrTab('patterns')">Detected Patterns</button>
+                        <button class="corr-tab" id="tabTimeline" onclick="switchCorrTab('timeline')">Timeline</button>
+                    </div>
+                </div>
+                <div class="correlation-status-bar" id="corrStatusBar">
+                    <span class="corr-stat"><span class="corr-stat-value" id="corrGroups">0</span> IP Groups</span>
+                    <span class="corr-stat"><span class="corr-stat-value" id="corrPatterns">0</span> Patterns</span>
+                    <span class="corr-stat"><span class="corr-stat-value" id="corrDupes">0</span> Dupes Blocked</span>
+                    <span class="corr-stat"><span class="corr-stat-value" id="corrCases">0</span> Corr. Cases</span>
+                </div>
+                <div class="panel-body" id="corrGroupsPanel" style="max-height:520px;">
+                    <div class="panel-empty">
+                        <span class="icon">🔍</span>
+                        <span>No correlation groups yet</span>
+                        <span style="font-size:0.72rem;">Groups form as alerts share source IPs</span>
+                    </div>
+                </div>
+                <div class="panel-body" id="corrPatternsPanel" style="display:none;max-height:520px;">
+                    <div class="panel-empty">
+                        <span class="icon">🧠</span>
+                        <span>No patterns detected</span>
+                        <span style="font-size:0.72rem;">Patterns are detected automatically from alert clusters</span>
+                    </div>
+                </div>
+                <div class="panel-body" id="corrTimelinePanel" style="display:none;max-height:520px;">
+                    <div class="panel-empty">
+                        <span class="icon">⏱️</span>
+                        <span>No timeline data</span>
+                        <span style="font-size:0.72rem;">Timeline populates as alerts arrive</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Grid: Alerts + Cases -->
+        <section class="dashboard-grid">
+
+            <!-- Alerts Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">🚨</span> Alerts Feed</div>
+                    <span class="panel-count" id="alertCount">0</span>
+                </div>
+                <div class="panel-toolbar">
+                    <input type="text" id="alertSearch" class="search-input" placeholder="Search alerts..." oninput="handleAlertSearch()">
+                    <select id="alertSeverityFilter" class="filter-select" onchange="handleAlertFilter()">
+                        <option value="">All Severities</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="panel-body" id="alertsPanel">
+                    <div class="panel-empty">
+                        <span class="icon">📡</span>
+                        <span>Waiting for Splunk alerts...</span>
+                        <span style="font-size:0.72rem;">Send a webhook to /api/ingest</span>
+                    </div>
+                </div>
+                <div class="panel-footer pagination">
+                    <button id="prevAlerts" class="btn-page" onclick="prevAlertPage()" disabled>Prev</button>
+                    <span id="alertsPageInfo" class="page-info">Page 1 of 1</span>
+                    <button id="nextAlerts" class="btn-page" onclick="nextAlertPage()" disabled>Next</button>
+                </div>
+            </div>
+
+            <!-- Cases Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">📁</span> Cases</div>
+                    <span class="panel-count" id="caseCount">0</span>
+                </div>
+                <div class="panel-toolbar">
+                    <input type="text" id="caseSearch" class="search-input" placeholder="Search cases..." oninput="handleCaseSearch()">
+                    <select id="caseStatusFilter" class="filter-select" onchange="handleCaseFilter()">
+                        <option value="">All Statuses</option>
+                        <option value="Open">Open</option>
+                        <option value="Acknowledged">Acknowledged</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                <div class="panel-body" id="casesPanel">
+                    <div class="panel-empty">
+                        <span class="icon">📋</span>
+                        <span>No cases yet</span>
+                        <span style="font-size:0.72rem;">Cases are auto-created from alerts</span>
+                    </div>
+                </div>
+                <div class="panel-footer pagination">
+                    <button id="prevCases" class="btn-page" onclick="prevCasePage()" disabled>Prev</button>
+                    <span id="casesPageInfo" class="page-info">Page 1 of 1</span>
+                    <button id="nextCases" class="btn-page" onclick="nextCasePage()" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Playbook Engine Section -->
+        <section class="actions-section">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="icon">⚡</span> Playbook Engine</div>
+                    <span class="panel-count" id="actionCount">0</span>
+                </div>
+
+                <!-- Playbook Form -->
+                <div class="action-form" id="actionForm">
+                    <div class="form-group">
+                        <label class="form-label" for="playbookSelect">Select Playbook</label>
+                        <select class="form-select" id="playbookSelect">
+                            <option value="">Loading playbooks...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="actionCaseId">Case ID</label>
+                        <input class="form-input" id="actionCaseId" type="number" min="1" placeholder="e.g. 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="actionTarget">Target Override</label>
+                        <input class="form-input" id="actionTarget" type="text" placeholder="IP (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="actionNotes">Notes</label>
+                        <input class="form-input" id="actionNotes" type="text" placeholder="Optional notes">
+                    </div>
+                    <button class="btn btn-primary" id="runActionBtn" onclick="runPlaybook()">
+                        ⚡ Execute Playbook
+                    </button>
+                </div>
+
+                <!-- Action Log -->
+                <div class="panel-body" id="actionsPanel">
+                    <div class="panel-empty">
+                        <span class="icon">📜</span>
+                        <span>No playbooks executed yet</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/script.js"></script>
+</body>
+</html>

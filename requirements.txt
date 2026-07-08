@@ -1,0 +1,6 @@
+fastapi==0.137.1
+uvicorn==0.49.0
+python-dateutil==2.9.0
+sqlalchemy==2.0.41
+psycopg2-binary==2.9.10
+python-multipart==0.0.20
