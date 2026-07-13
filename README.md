@@ -1,4 +1,4 @@
-# YORU 
+# 🌙 YORU
 
 # 🛡️ SOAR Platform
 
@@ -8,21 +8,67 @@
 
 ## 📖 Overview
 
-This project is a **lightweight, real-time SOC platform** designed to simulate modern security operations workflows. It ingests alerts from external sources (like SIEM tools), correlates attack patterns, and enables analysts to investigate and respond efficiently.
+YORU is a **lightweight, real-time SOC platform** designed to simulate modern security operations workflows. It ingests alerts from external sources (like SIEM tools), correlates attack patterns, and enables analysts to investigate and respond efficiently.
 
-### 🔥 Key Capabilities
+> ⚡ **Real-World Integration:** Alerts are ingested from a **Splunk instance running in a virtual machine**, demonstrating a practical **SIEM → SOAR pipeline**.
 
-* 📥 **Alert Ingestion** – Accept alerts via webhook (Splunk, Wazuh, custom sources)
+---
+
+## 🔥 Key Capabilities
+
+* 📥 **Alert Ingestion (Splunk Integrated)**
+
+  * Receives alerts via **Splunk Webhooks**
+  * Endpoint: `https://<KALI_IP>:8000/api/ingest`
+  * Supports additional sources (Wazuh, custom tools)
+
 * 🔁 **Correlation Engine** – Detects:
 
   * Brute-force attacks
   * Port scans
   * Repeated rule triggers
-* 📂 **Case Management** – Auto-create and manage security incidents
-* ⚙️ **Playbooks** – Execute automated response actions
-* 📡 **Real-time Updates** – WebSocket-based live dashboard
-* 🧠 **Deduplication Logic** – Prevent alert flooding
-* 🐳 **Dockerized Setup** – Easy deployment with Docker Compose
+
+* 📂 **Automated Case Management**
+
+  * Automatically creates **cases from ingested alerts**
+  * Groups related alerts using correlation logic
+
+* ⚙️ **Playbooks**
+  Execute automated response actions
+
+* 📡 **Real-time Updates**
+  WebSocket-based live dashboard
+
+* 🧠 **Deduplication Logic**
+  Prevent alert flooding and noise
+
+* 🐳 **Dockerized Setup**
+  Easy deployment with Docker Compose
+
+---
+
+## 🔗 Splunk Integration Workflow
+
+```text
+Splunk (VM)
+   ↓  (Webhook Alert)
+POST /api/ingest
+   ↓
+YORU Backend (FastAPI)
+   ↓
+Alert Processing + Deduplication
+   ↓
+Correlation Engine
+   ↓
+Auto Case Creation
+   ↓
+Frontend Dashboard (Real-time via WebSocket)
+```
+
+✔ Splunk sends alerts via webhook
+✔ YORU ingests and processes them
+✔ Correlation engine analyzes patterns
+✔ Cases are automatically created and updated in real-time
 
 ---
 
@@ -51,8 +97,8 @@ This project is a **lightweight, real-time SOC platform** designed to simulate m
 ## 🚀 Quick Start (Docker)
 
 ```bash
-git clone https://github.com/hash1r-nk/soar.git
-cd soar
+git clone https://github.com/hash1r-nk/YORU.git
+cd YORU
 
 docker compose up --build -d
 ```
@@ -68,7 +114,7 @@ docker compose up --build -d
 ## 📂 Project Structure
 
 ```
-soar/
+YORU/
 ├── backend/
 │   ├── main.py              # API routes & correlation engine
 │   ├── models.py            # Database models
@@ -130,7 +176,7 @@ npm run dev
 * 📊 Correlation engine visualization
 * ⚡ Real-time alert & case updates
 * 🧾 Case tracking & lifecycle management
-* 🧪 Designed for SOC labs & learning environments
+* 🧪 Designed for SOC labs & real-world simulation
 
 ---
 
@@ -179,3 +225,5 @@ If you found this project useful:
 ---
 
 > Built as part of a cybersecurity learning journey — combining both **offensive and defensive security concepts** into a practical SOC platform.
+
+> 🌙 *“While you sleep, YORU watches.”*
