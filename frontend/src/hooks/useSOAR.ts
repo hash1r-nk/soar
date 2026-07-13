@@ -15,8 +15,8 @@ export function useSOAR() {
   const [toasts, setToasts] = useState<any[]>([]);
 
   // Pagination / Filter states
-  const [alertState, setAlertState] = useState({ page: 0, limit: 10, query: "", severity: "" });
-  const [caseState, setCaseState] = useState({ page: 0, limit: 10, query: "", status: "" });
+  const [alertState, setAlertState] = useState({ page: 0, limit: 10, query: "", severity: "", ip: "" });
+  const [caseState, setCaseState] = useState({ page: 0, limit: 10, query: "", status: "", severity: "", ip: "" });
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -28,7 +28,7 @@ export function useSOAR() {
 
   const loadAlerts = useCallback(async () => {
     try {
-      const data = await api.fetchAlerts(alertState.page, alertState.limit, alertState.query, alertState.severity);
+      const data = await api.fetchAlerts(alertState.page, alertState.limit, alertState.query, alertState.severity, alertState.ip);
       setAlerts(data.items);
       setAlertsTotal(data.total);
     } catch (e) {
@@ -38,7 +38,7 @@ export function useSOAR() {
 
   const loadCases = useCallback(async () => {
     try {
-      const data = await api.fetchCases(caseState.page, caseState.limit, caseState.query, caseState.status);
+      const data = await api.fetchCases(caseState.page, caseState.limit, caseState.query, caseState.status, caseState.severity, caseState.ip);
       setCases(data.items);
       setCasesTotal(data.total);
     } catch (e) {
