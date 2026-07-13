@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SOAR Command Center",
+  title: "YORU",
   description: "Security Orchestration, Automation & Response Dashboard",
 };
 

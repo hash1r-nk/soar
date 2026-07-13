@@ -1,5 +1,5 @@
 // ================================================
-// SOAR Command Center — Dashboard Logic
+// YORU — Dashboard Logic
 // Real-time WebSocket, Charts, Actions
 // ================================================
 

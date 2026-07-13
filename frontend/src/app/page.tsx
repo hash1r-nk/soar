@@ -52,7 +52,8 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
       `}} />
 
@@ -61,7 +62,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center" }}>
           <div className="header-logo"><FiShield color="var(--accent-blue)" size={32} /></div>
           <div>
-            <div className="header-title">SOAR Command Center</div>
+            <div className="header-title">YORU</div>
             <div className="header-subtitle">Security Orchestration, Automation & Response</div>
           </div>
         </div>
@@ -74,38 +75,38 @@ export default function Home() {
       {/* Main Grid */}
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         <StatsBar stats={stats} />
-        
+
         <DashboardCharts stats={stats} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
-          <CorrelationEngine 
-            groups={correlationGroups} 
-            patterns={detectedPatterns} 
-            stats={stats} 
+          <CorrelationEngine
+            groups={correlationGroups}
+            patterns={detectedPatterns}
+            stats={stats}
           />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "24px", height: "600px" }}>
-          <AlertsPanel 
-            alerts={alerts} 
-            total={alertsTotal} 
-            state={alertState} 
-            setState={setAlertState} 
-            loadAlerts={loadAlerts} 
+          <AlertsPanel
+            alerts={alerts}
+            total={alertsTotal}
+            state={alertState}
+            setState={setAlertState}
+            loadAlerts={loadAlerts}
           />
-          <CasesPanel 
-            cases={cases} 
-            total={casesTotal} 
-            state={caseState} 
-            setState={setCaseState} 
-            loadCases={loadCases} 
+          <CasesPanel
+            cases={cases}
+            total={casesTotal}
+            state={caseState}
+            setState={setCaseState}
+            loadCases={loadCases}
             openPlaybook={openPlaybook}
           />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
-          <PlaybookEngine 
-            playbooks={playbooks} 
+          <PlaybookEngine
+            playbooks={playbooks}
             actions={actions}
             initialCaseId={playbookIntent?.caseId}
             initialTarget={playbookIntent?.target}

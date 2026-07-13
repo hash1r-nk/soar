@@ -16,18 +16,21 @@ export async function fetchPlaybooks() {
   return res.json();
 }
 
-export async function fetchAlerts(page = 0, limit = 10, query = "", severity = "") {
+export async function fetchAlerts(page = 0, limit = 10, query = "", severity = "", ip = "") {
   const params = new URLSearchParams({ skip: (page * limit).toString(), limit: limit.toString() });
   if (query) params.append("query", query);
   if (severity) params.append("severity", severity);
+  if (ip) params.append("ip", ip);
   const res = await fetch(`${API_BASE}/alerts?${params}`);
   return res.json();
 }
 
-export async function fetchCases(page = 0, limit = 10, query = "", status = "") {
+export async function fetchCases(page = 0, limit = 10, query = "", status = "", severity = "", ip = "") {
   const params = new URLSearchParams({ skip: (page * limit).toString(), limit: limit.toString() });
   if (query) params.append("query", query);
   if (status) params.append("status", status);
+  if (severity) params.append("severity", severity);
+  if (ip) params.append("ip", ip);
   const res = await fetch(`${API_BASE}/cases?${params}`);
   return res.json();
 }
