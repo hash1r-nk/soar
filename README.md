@@ -1,4 +1,4 @@
-# **YORU 
+**YORU 
 
 # 🛡️ SOAR Platform
 
